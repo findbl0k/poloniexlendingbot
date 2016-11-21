@@ -68,11 +68,22 @@ keepstuckorders = True
 #If set to 0 or commented: the bot will use the maxtolend or maxpercenttolend all the time. (0.0031-5)
 #maxtolendrate = 0
 
-#Syntax: ["COIN:mindailyrate:maxactiveamount:maxtolend:maxpercenttolend:maxtolendrate",...]
-#If maxactive amount is 0: stop lending this coin. in the future you'll be able to limit amount to be lend.
-#If maxtolend is 0: check for maxpercenttolend.
-#If maxpercenttolend is 0: 100% is going to be lend.
-#If maxtolendrate is set to more than 0: the maxtolend or maxpercenttolend will be used when then rate is less or equal to the maxtolendrate. if set to 0 the bot will use the maxtolend or maxpercenttolend all the time.
+# Local Market Analysis: Choose which coins to record the market of in order to analyse them and compute a recommended lending rate.
+# All coins: STR,BTC,BTS,CLAM,DOGE,DASH,LTC,MAID,XMR,XRP,ETH,FCT
+#analyseCurrencies = STR,BTC,BTS,CLAM,DOGE,DASH,LTC,MAID,XMR,XRP,ETH,FCT
+# Choose how long to keep market data. (In days) (1-365)
+analyseMaxAge = 30
+# Choose how often to record a market's rate. (In seconds.) (10-3600)
+analyseUpdateInterval = 60
+# Choose how aggressive to lend at based on a market's performance. (As a percentile of the market's rate.) (1-99)
+# Recommendations: Conservative = 50, Moderate = 75, Aggressive = 90, Very Aggressive = 99
+lendingStyle = 75
+
+#Syntax: ["COIN:mindailyrate:maxactiveamount:maxtolent:maxpercenttolent:maxtolentrate",...]
+#If maxactive amount is 0: stop lending this coin. in the future you'll be able to limit amount to be lent.
+#If maxtolent is 0: check for maxpercenttolent.
+#If maxpercenttolent is 0: 100% is going to be lent.
+#If maxtolentrate is set to more than 0: the maxtolent or maxpercenttolent will be used when then rate is less or equal to the maxtolentrate. if set to 0 the bot will use the maxtolent or maxpercenttolent all the time.
 #coinconfig = ["BTC:0.18:1:0:0:0","CLAM:0.6:1:0:0:0"]
 
 #This option creates a json log file instead of console output which includes the most recent status.

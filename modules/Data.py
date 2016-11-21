@@ -1,4 +1,5 @@
 import datetime
+import time
 from decimal import Decimal
 
 api = None
@@ -57,6 +58,11 @@ def get_total_lended():
             total_lended[item["currency"]] = crypto_lended_sum
             rate_lended[item["currency"]] = crypto_lended_rate
     return [total_lended, rate_lended]
+
+
+def timestamp():
+    ts = time.time()
+    return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def stringify_total_lended(total_lended, rate_lended):

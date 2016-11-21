@@ -1,6 +1,5 @@
 # coding=utf-8
 import argparse
-import datetime
 import sys
 import time
 import traceback
@@ -11,6 +10,7 @@ import modules.Configuration as Config
 import modules.MaxToLend as MaxToLend
 import modules.Data as Data
 import modules.Lending as Lending
+import modules.MarketAnalysis as Analysis
 
 
 parser = argparse.ArgumentParser()  # Start args.
@@ -38,16 +38,13 @@ end_date = Config.get('BOT', 'endDate')
 json_output_enabled = Config.has_option('BOT', 'jsonfile') and Config.has_option('BOT', 'jsonlogsize')
 
 
-def timestamp():
-    ts = time.time()
-    return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-
-
 log = Logger(Config.get('BOT', 'jsonfile', ''), Config.get('BOT', 'jsonlogsize', -1))
 api = Poloniex(api_key, api_secret)
 MaxToLend.init(Config, log)
 Data.init(api, log)
-Lending.init(Config, api, log, Data, MaxToLend, dry_run)
+Lending.init(Config, api, log, Data, MaxToLend, dry_run, Analysis)
+if Config.has_option('BOT', 'analyseCurrencies'):
+    Analysis.init(Config, api, Data)
 
 
 def set_auto_renew(auto):
@@ -97,7 +94,7 @@ try:
         except Exception as ex:
             log.log("ERROR: " + str(ex))
             log.persistStatus()
-            print timestamp()
+            print Data.timestamp()
             print traceback.format_exc()
             if 'Invalid API key' in str(ex):
                 print "!!! Troubleshooting !!!"

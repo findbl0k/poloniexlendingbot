@@ -5,6 +5,7 @@ api = None
 log = None
 Data = None
 MaxToLend = None
+Analysis = None
 
 SATOSHI = Decimal(10) ** -8
 
@@ -30,13 +31,14 @@ loanOrdersRequestLimit = {}
 defaultLoanOrdersRequestLimit = 200
 
 
-def init(cfg, api1, log1, data, maxtolend, dry_run1):
-    global Config, api, log, Data, MaxToLend
+def init(cfg, api1, log1, data, maxtolend, dry_run1, analysis):
+    global Config, api, log, Data, MaxToLend, Analysis
     Config = cfg
     api = api1
     log = log1
     Data = data
     MaxToLend = maxtolend
+    Analysis = analysis
 
     global sleep_time, sleep_time_active, sleep_time_inactive, min_daily_rate, max_daily_rate, spread_lend, \
         gap_bottom, gap_top, xday_threshold, xdays, min_loan_size, end_date, coin_cfg, dry_run, \
@@ -151,6 +153,10 @@ def lend_cur(active_cur, total_lended, lending_balances):
             return 0
         cur_min_daily_rate = coin_cfg[active_cur]['minrate']
         log.log('Using custom mindailyrate ' + str(coin_cfg[active_cur]['minrate'] * 100) + '% for ' + active_cur)
+    if Config.has_option('BOT', 'analyseCurrencies'):
+        recommended_min = Analysis.get_rate_suggestion(active_cur)
+        if cur_min_daily_rate < recommended_min:
+            cur_min_daily_rate = recommended_min
 
     # log total coin
     log.updateStatusValue(active_cur, "totalCoins", (Decimal(active_cur_test_balance)))
