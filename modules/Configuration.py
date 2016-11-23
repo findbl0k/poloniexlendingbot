@@ -72,30 +72,11 @@ def get_coin_cfg():
     return coin_cfg
 
 
-def get_transferable_currencies():
-    if config.has_option("BOT", 'transferableCurrencies'):
+def get_currencies_list(option):
+    if config.has_option("BOT", option):
         full_list = ['STR', 'BTC', 'BTS', 'CLAM', 'DOGE', 'DASH', 'LTC', 'MAID', 'XMR', 'XRP', 'ETH', 'FCT']
         cur_list = []
-        raw_cur_list = config.get("BOT", 'transferableCurrencies').split(",")
-        for raw_cur in raw_cur_list:
-            cur = raw_cur.strip(' ').upper()
-            if cur == 'ALL':
-                return full_list
-            elif cur == 'ACTIVE':
-                cur_list += Data.get_lending_currencies()
-            else:
-                if cur in full_list:
-                    cur_list.append(cur)
-        return list(set(cur_list))
-    else:
-        return []
-
-
-def get_currencies_to_analyse():
-    if config.has_option("BOT", 'analyseCurrencies'):
-        full_list = ['STR', 'BTC', 'BTS', 'CLAM', 'DOGE', 'DASH', 'LTC', 'MAID', 'XMR', 'XRP', 'ETH', 'FCT']
-        cur_list = []
-        raw_cur_list = config.get("BOT", 'analyseCurrencies').split(",")
+        raw_cur_list = config.get("BOT", option).split(",")
         for raw_cur in raw_cur_list:
             cur = raw_cur.strip(' ').upper()
             if cur == 'ALL':
