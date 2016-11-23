@@ -1,9 +1,15 @@
 import csv
 import threading
 import time
-import numpy
 import datetime
 from cStringIO import StringIO
+try:
+    import numpy
+    use_numpy = True
+except Exception as ex:
+    print "WARNING: Module Numpy not found, using manual percentile method. " \
+          "It is recommended to install Numpy. Error: " + str(ex)
+    use_numpy = False
 
 currencies_to_analyse = []
 open_files = {}
@@ -16,30 +22,29 @@ lending_style = 0
 
 def init(config, api1, data1):
     global currencies_to_analyse, open_files, max_age, update_interval, api, Data, lending_style
-    currencies_to_analyse = config.get('BOT', 'analyseCurrencies').split(',')
+    currencies_to_analyse = config.get_currencies_to_analyse()
     max_age = int(config.get('BOT', 'analyseMaxAge', 30, 1, 365))
     update_interval = int(config.get('BOT', 'analyseUpdateInterval', 60, 10, 3600))
     lending_style = int(config.get('BOT', 'lendingStyle', 50, 1, 99))
     api = api1
     Data = data1
+    if len(currencies_to_analyse) != 0:
+        for currency in currencies_to_analyse:
 
-    for raw_currency in currencies_to_analyse:
-        currency = raw_currency.strip(' ').upper()
+            try:
+                api.api_query("returnLoanOrders", {'currency': currency, 'limit': '5'})
+            except Exception as cur_ex:
+                print "Error: You entered an incorrect currency: '" + currency + \
+                      "' to analyse the market of, please check your settings. Error message: " + str(cur_ex)
+                exit(1)
 
-        try:
-            api.api_query("returnLoanOrders", {'currency': currency, 'limit': '5'})
-        except Exception as ex:
-            print "Error: You entered an incorrect currency: '" + currency + \
-                  "' to analyse the market of, please check your settings. Error message: " + str(ex)
-            exit(1)
+            else:
+                path = "market_data/" + currency + "_market_data.csv"
+                open_files[currency] = path
 
-        else:
-            path = "market_data/" + currency + "_market_data.csv"
-            open_files[currency] = path
-
-    thread = threading.Thread(target=update_market_loop)
-    thread.deamon = True
-    thread.start()
+        thread = threading.Thread(target=update_market_loop)
+        thread.deamon = True
+        thread.start()
 
 
 def update_market_loop():
@@ -89,6 +94,11 @@ def get_rate_suggestion(cur, percentile=lending_style):
         for row in reader:
             rates.append(row[1])
         rates = map(float, rates)
-        result = numpy.percentile(rates, int(percentile), interpolation='linear')
+        if use_numpy:
+            result = numpy.percentile(rates, int(percentile), interpolation='linear')
+        else:
+            rates.sort()
+            index = int(percentile * len(rates))
+            result = rates[index]
         result = float(int(result * 1000000) / 1000000.0)
         return result

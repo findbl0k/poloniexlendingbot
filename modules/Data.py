@@ -10,6 +10,7 @@ def init(api1, log1):
     global api, log
     api = api1
     log = log1
+    get_lending_currencies()
 
 
 def get_on_order_balances():
@@ -95,3 +96,14 @@ def update_conversion_rates(output_currency, json_output_enabled):
         if output_currency == 'BTC':
             log.updateOutputCurrency('highestBid', '1')
             log.updateOutputCurrency('currency', output_currency)
+
+
+def get_lending_currencies():
+    currencies = []
+    total_lended = get_total_lended()[0]
+    for cur in total_lended:
+        currencies.append(cur)
+    lending_balances = api.return_available_account_balances("lending")['lending']
+    for cur in lending_balances:
+        currencies.append(cur)
+    return currencies

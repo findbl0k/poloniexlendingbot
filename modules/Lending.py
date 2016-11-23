@@ -229,8 +229,7 @@ def transfer_balances():
     # Transfers all balances on the included list to Lending.
     if len(transferable_currencies) > 0:
         exchange_balances = api.return_balances()  # This grabs only exchange balances.
-        for raw_coin in transferable_currencies:
-            coin = raw_coin.strip().upper()
+        for coin in transferable_currencies:
             if coin in exchange_balances and Decimal(
                     exchange_balances[coin]) > 0:
                 msg = api.transfer_balance(coin, exchange_balances[coin], 'exchange', 'lending')

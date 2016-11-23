@@ -42,6 +42,7 @@ log = Logger(Config.get('BOT', 'jsonfile', ''), Config.get('BOT', 'jsonlogsize',
 api = Poloniex(api_key, api_secret)
 MaxToLend.init(Config, log)
 Data.init(api, log)
+Config.init(config_location, Data)
 Lending.init(Config, api, log, Data, MaxToLend, dry_run, Analysis)
 if Config.has_option('BOT', 'analyseCurrencies'):
     Analysis.init(Config, api, Data)
