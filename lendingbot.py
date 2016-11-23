@@ -47,26 +47,6 @@ if Config.has_option('BOT', 'analyseCurrencies'):
     Analysis.init(Config, api, Data)
 
 
-def set_auto_renew(auto):
-    i = int(0)  # counter
-    try:
-        action = 'Clearing'
-        if auto == 1:
-            action = 'Setting'
-        log.log(action + ' AutoRenew...(Please Wait)')
-        crypto_lended = api.return_active_loans()
-        loans_count = len(crypto_lended["provided"])
-        for item in crypto_lended["provided"]:
-            if int(item["autoRenew"]) != auto:
-                log.refreshStatus('Processing AutoRenew - ' + str(i) + ' of ' + str(loans_count) + ' loans')
-                api.toggle_auto_renew(int(item["id"]))
-                i += 1
-    except KeyboardInterrupt:
-        log.log('Toggled AutoRenew for ' + str(i) + ' loans')
-        raise SystemExit
-    log.log('Toggled AutoRenew for ' + str(i) + ' loans')
-
-
 print 'Welcome to Poloniex Lending Bot'
 # Configure web server
 
@@ -77,7 +57,7 @@ if web_server_enabled:  # Run web server
 
 # if config includes autorenew - start by clearing the current loans
 if auto_renew == 1:
-    set_auto_renew(0)
+    Lending.set_auto_renew(0)
 
 try:
     while True:
@@ -113,7 +93,7 @@ try:
             pass
 except KeyboardInterrupt:
     if auto_renew == 1:
-        set_auto_renew(1)
+        Lending.set_auto_renew(1)
     if web_server_enabled:
         WebServer.stop_web_server()
     log.log('bye')
