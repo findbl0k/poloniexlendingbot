@@ -265,8 +265,8 @@ Advanced logging and Web Display
 - Acceptable values: BTC, USDT, Any coin with a direct Poloniex BTC trading pair (ex. DOGE, MAID, ETH)
 - Will be a close estimate, due to unexpected market fluctuations, trade fees, and other unforseeable factors.
 
-2.11 lengdingbot.html options
------------------------------
+lendingbot.html options
+-----------------------
 
 You can pass options to statistics page by adding them to URL. Eg, ``http://localhost:8000/lendingbot.html?option1=value&option2=0``
 
