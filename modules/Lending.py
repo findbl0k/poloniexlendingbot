@@ -57,7 +57,7 @@ def init(cfg, api1, log1, data, maxtolend, dry_run1, analysis):
     end_date = Config.get('BOT', 'endDate')
     coin_cfg = Config.get_coin_cfg()
     dry_run = dry_run1
-    transferable_currencies = Config.get_currencies_list('analyseCurrencies')
+    transferable_currencies = Config.get_currencies_list('transferableCurrencies')
     keep_stuck_orders = Config.getboolean('BOT', "keepstuckorders", True)
 
     sleep_time = sleep_time_active  # Start with active mode
