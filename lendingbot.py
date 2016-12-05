@@ -95,9 +95,8 @@ try:
             sys.stdout.flush()
             time.sleep(Lending.get_sleep_time())
         except Exception as ex:
-            log.log("ERROR: " + str(ex))
+            log.log_error(str(ex))
             log.persistStatus()
-            print timestamp()
             if 'Invalid API key' in str(ex):
                 print "!!! Troubleshooting !!!"
                 print "Are your API keys correct? No quotation. Just plain keys."
@@ -110,11 +109,11 @@ try:
                 print "!!! Troubleshooting !!!"
                 print "Are you using IP filter on the key? Maybe your IP changed?"
                 exit(1)
-            elif 'The read operation timed out' in str(ex):
-                print "Last API request timed out. Continuing..."
+            elif 'timed out' in str(ex):
+                print "Timed out, will retry in " + Lending.get_sleep_time() + "sec"
             else:
                 print traceback.format_exc()
-                print "Unhandled error, please open a Github issue so we can fix it! Error: " + str(ex)
+                print "Unhandled error, please open a Github issue so we can fix it!"
             sys.stdout.flush()
             time.sleep(Lending.get_sleep_time())
             pass
