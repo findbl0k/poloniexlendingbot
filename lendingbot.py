@@ -83,7 +83,7 @@ try:
                 print "Are you using IP filter on the key? Maybe your IP changed?"
                 exit(1)
             elif 'timed out' in str(ex):
-                print "Timed out, will retry in " + Lending.get_sleep_time() + "sec"
+                print "Timed out, will retry in " + str(Lending.get_sleep_time()) + "sec"
             else:
                 print traceback.format_exc()
                 print "Unhandled error, please open a Github issue so we can fix it!"
