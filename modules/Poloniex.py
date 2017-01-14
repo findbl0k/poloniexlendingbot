@@ -16,24 +16,25 @@ def create_time_stamp(datestr, formatting="%Y-%m-%d %H:%M:%S"):
     return time.mktime(time.strptime(datestr, formatting))
 
 
+def post_process(before):
+    after = before
+
+    # Add timestamps if there isnt one but is a datetime
+    if 'return' in after:
+        if isinstance(after['return'], list):
+            for x in xrange(0, len(after['return'])):
+                if isinstance(after['return'][x], dict):
+                    if 'datetime' in after['return'][x] and 'timestamp' not in after['return'][x]:
+                        after['return'][x]['timestamp'] = float(create_time_stamp(after['return'][x]['datetime']))
+
+    return after
+
+
 class Poloniex:
     def __init__(self, api_key, secret):
         self.APIKey = api_key
         self.Secret = secret
         socket.setdefaulttimeout(30)
-
-    def post_process(self, before):
-        after = before
-
-        # Add timestamps if there isnt one but is a datetime
-        if 'return' in after:
-            if isinstance(after['return'], list):
-                for x in xrange(0, len(after['return'])):
-                    if isinstance(after['return'][x], dict):
-                        if 'datetime' in after['return'][x] and 'timestamp' not in after['return'][x]:
-                            after['return'][x]['timestamp'] = float(create_time_stamp(after['return'][x]['datetime']))
-
-        return after
 
     def api_query(self, command, req=None):
 
@@ -78,12 +79,18 @@ class Poloniex:
 
                 ret = urllib2.urlopen(urllib2.Request('https://poloniex.com/tradingApi', post_data, headers))
                 json_ret = _read_response(ret)
-                return self.post_process(json_ret)
+                return post_process(json_ret)
         except Exception as ex:
-            # add command information to exception
-            # (this isn't compatible with python 3)
-            import sys
-            raise type(ex), type(ex)(ex.message + ' Requesting %s' % command), sys.exc_info()[2]
+            if 'timed out' in str(ex) or 'Internal error.' in str(ex):  # Certain non-fatal errors we should just retry.
+                return self.api_query(command, req=None)
+            elif 'API calls per second' in str(ex):
+                time.sleep(1)  # Wait 1 second then retry, non-fatal.
+                return self.api_query(command, req=None)
+            else:
+                # add command information to exception
+                # (this isn't compatible with python 3)
+                import sys
+                raise type(ex), type(ex)(ex.message + ' Requesting %s' % command), sys.exc_info()[2]
 
     def return_ticker(self):
         return self.api_query("returnTicker")
