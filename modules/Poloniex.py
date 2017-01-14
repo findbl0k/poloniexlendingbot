@@ -81,7 +81,11 @@ class Poloniex:
                 json_ret = _read_response(ret)
                 return post_process(json_ret)
         except Exception as ex:
-            if 'timed out' in str(ex) or 'Internal error.' in str(ex):  # Certain non-fatal errors we should just retry.
+            if 'timed out' in str(ex):  # If user times out, wait a bit then retry.
+                print 'WARN: API request timed out, retrying in 10 seconds...'
+                time.sleep(10)
+                return self.api_query(command, req=None)
+            elif 'Internal error.' in str(ex):  # Non-fatal error we should just retry.
                 return self.api_query(command, req=None)
             elif 'API calls per second' in str(ex):
                 time.sleep(1)  # Wait 1 second then retry, non-fatal.
