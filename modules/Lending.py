@@ -28,6 +28,7 @@ transferable_currencies = []
 keep_stuck_orders = True
 hide_coins = True
 coin_cfg_alerted = {}
+max_active_alerted = {}
 
 # limit of orders to request
 loanOrdersRequestLimit = {}
@@ -166,8 +167,10 @@ def get_min_daily_rate(cur):
     cur_min_daily_rate = min_daily_rate
     if cur in coin_cfg:
         if coin_cfg[cur]['maxactive'] == 0:
-            log.log('maxactive amount for ' + cur + ' set to 0, won\'t lend.')
-            return 0
+            if cur not in max_active_alerted:  # Only alert once per coin.
+                max_active_alerted[cur] = True
+                log.log('maxactive amount for ' + cur + ' set to 0, won\'t lend.')
+            return False
         cur_min_daily_rate = Decimal(coin_cfg[cur]['minrate'])
         if cur not in coin_cfg_alerted:  # Only alert once per coin.
             coin_cfg_alerted[cur] = True
@@ -267,7 +270,7 @@ def lend_cur(active_cur, total_lended, lending_balances):
     # log total coin
     log.updateStatusValue(active_cur, "totalCoins", (Decimal(active_cur_total_balance)))
     order_book = construct_order_book(active_cur)
-    if not order_book or len(order_book['rates']) == 0:
+    if not order_book or len(order_book['rates']) == 0 or not cur_min_daily_rate:
         return 0
 
     active_bal = MaxToLend.amount_to_lend(active_cur_total_balance, active_cur, Decimal(lending_balances[active_cur]),
